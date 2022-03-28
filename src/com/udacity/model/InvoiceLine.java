@@ -52,7 +52,10 @@ public class InvoiceLine {
         return "InvoiceLine{" + "itemName=" + itemName + ", itemprice=" + itemPrice + ", itemCount=" + itemCount + '}';
     }           
     public double getLineTotal() { 
-        return itemCount * itemPrice;   
-        
+        return itemCount * itemPrice;           
 }
+    
+    public String getDataAsCSV() {
+        return "" + getHeader().getInvNum() + "," + getItemName() + "," + getItemprice() + "," + getItemCount();
+    }  
 }

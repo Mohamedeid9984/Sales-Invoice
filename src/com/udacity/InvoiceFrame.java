@@ -5,14 +5,34 @@
  */
 package com.udacity;
 
+import com.udacity.UI.InvoiceHeaderDialog;
+import com.udacity.UI.InvoiceLineDialog;
+import com.udacity.model.InvoiceHeader;
+import com.udacity.model.InvoiceHeaderTableModel;
+import com.udacity.model.InvoiceLine;
+import com.udacity.model.InvoiceLinesTableModel;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
  * @author moham
  */
-public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
+public class InvoiceFrame extends javax.swing.JFrame implements ActionListener, ListSelectionListener {
 
     /**
      * Creates new form InvoiceFrame
@@ -32,6 +52,7 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         invoicesTable = new javax.swing.JTable();
+        invoicesTable.getSelectionModel().addListSelectionListener(this);
         createInvBtn = new javax.swing.JButton();
         createInvBtn.addActionListener(this);
         deleteInvBtn = new javax.swing.JButton();
@@ -61,13 +82,10 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
 
         invoicesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+
             }
         ));
         jScrollPane1.setViewportView(invoicesTable);
@@ -77,6 +95,11 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
 
         deleteInvBtn.setText("Delete Invoice");
         deleteInvBtn.setActionCommand("DeleteInvoice");
+        deleteInvBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteInvBtnActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Invoice Number");
 
@@ -86,19 +109,12 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
 
         jLabel4.setText("Invoice Total");
 
-        custNameTF.setText("jTextField1");
-
-        invDateTF.setText("jTextField2");
-
         invLinesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+
             }
         ));
         jScrollPane2.setViewportView(invLinesTable);
@@ -134,12 +150,25 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(createInvBtn)
+                .addGap(33, 33, 33)
+                .addComponent(deleteInvBtn)
+                .addGap(72, 436, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(70, 70, 70)
+                        .addComponent(createLineBtn)
+                        .addGap(44, 44, 44)
+                        .addComponent(deleteLineBtn)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
@@ -163,29 +192,14 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
                                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                 .addComponent(custNameTF, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                                                 .addComponent(invDateTF)))))
-                                .addContainerGap(26, Short.MAX_VALUE))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(70, 70, 70)
-                        .addComponent(createLineBtn)
-                        .addGap(44, 44, 44)
-                        .addComponent(deleteLineBtn)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(50, 50, 50)
-                .addComponent(createInvBtn)
-                .addGap(33, 33, 33)
-                .addComponent(deleteInvBtn)
-                .addGap(72, 427, Short.MAX_VALUE))
+                                .addGap(0, 25, Short.MAX_VALUE)))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(invNumLbl))
@@ -206,9 +220,11 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
                         .addGap(28, 28, 28)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(createLineBtn)
-                            .addComponent(deleteLineBtn))
-                        .addGap(59, 59, 59)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(deleteLineBtn)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(deleteInvBtn)
                     .addComponent(createInvBtn))
@@ -221,6 +237,10 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
     private void loadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadMenuItemActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_loadMenuItemActionPerformed
+
+    private void deleteInvBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteInvBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_deleteInvBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -279,32 +299,283 @@ public class InvoiceFrame extends javax.swing.JFrame implements ActionListener {
     private javax.swing.JMenuItem loadMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     // End of variables declaration//GEN-END:variables
-
+    private DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+    private List<InvoiceHeader> invoicesList = new ArrayList<>(); 
+    private InvoiceHeaderTableModel invoiceHeaderTableModel;
+    private InvoiceLinesTableModel invoiceLinesTableModel;
+    private InvoiceHeaderDialog headerDialog; 
+    private InvoiceLineDialog lineDialog;
+    
     @Override
     public void actionPerformed(ActionEvent e) {
      
         switch (e.getActionCommand()) {
             case "CreateNewInvoice":
-                
+                displayNewInvoiceDialog();
+                break;
             case "DeleteInvoice":
-                
+                deleteInvoice();
+                break;                
             case "CreateNewLine":
-                
+                displayNewLineDialog();
+                break;               
             case "DeleteLine":
-                
+                deleteLine();
+                break;               
             case "LoadFile":  
-               loadFile();  
+               loadFile(); 
+                break; 
            case "SaveFile":
                saveData();
+                break;
+           case "createInvCancel":
+               createInvCancel();
+                break;
+           case "createInvOk":
+               createInvOk();
+                break;
+           case "createLineCancel":   
+               createLineCancel();
+                break;    
+           case "createLineOk":      
+               createLineOk();
+               break;               
         }
     }
     private void loadFile() {
+        JOptionPane.showMessageDialog(this, "Please, select header file!", "Attension", JOptionPane.WARNING_MESSAGE);
         JFileChooser openFile = new JFileChooser();
-        openFile.showOpenDialog(this);
-    }
+        int result = openFile.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File headerFile = openFile.getSelectedFile();
+            try { 
+                FileReader headerFr = new FileReader(headerFile);
+                BufferedReader headerBr = new BufferedReader(headerFr);
+                String headerLine = null;        
+                                
+                
+                while ((headerLine = headerBr.readLine()) != null) {
+                    String[] headerParts = headerLine.split(","); 
+                    String invNumStr = headerParts[0];
+                    String invDateStr = headerParts[1];
+                    String custName = headerParts[2];
+                    
+                    int invNum = Integer.parseInt(invNumStr);
+                    Date invDate = df.parse(invDateStr);                           
+                    
+                    InvoiceHeader inv = new InvoiceHeader(invNum, custName, invDate);
+                    invoicesList.add(inv);
+                }            
+                
+                JOptionPane.showMessageDialog(this, "Please, select lines file!", "Attension", JOptionPane.WARNING_MESSAGE);
+                result = openFile.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {                
+                    File linesFile = openFile.getSelectedFile();
+                    BufferedReader linesBr = new BufferedReader(new FileReader(linesFile)); 
+                    String linesLine = null;
+                    while ((linesLine = linesBr.readLine()) != null) {
+                        String[] lineParts = linesLine.split(",");
+                        String invNumStr = lineParts[0];
+                        String itemName = lineParts [1];
+                        String itemPriceStr = lineParts [2];
+                        String itemCountStr = lineParts [3];
+                    
+                        int invNum = Integer.parseInt(invNumStr);
+                        double itemPrice = Double.parseDouble(itemPriceStr);
+                        int itemCount = Integer.parseInt(itemCountStr);
+                        InvoiceHeader header = findInvoiceByNum(invNum);
+                        InvoiceLine invLine = new InvoiceLine(itemName, itemPrice, itemCount, header);
+                        header.getLines().add(invLine);
+                    }              
+                    invoiceHeaderTableModel = new InvoiceHeaderTableModel(invoicesList);
+                    invoicesTable.setModel(invoiceHeaderTableModel);
+                    invoicesTable.validate();               
+              }  
+                System.out.println("Check");
+            } catch (Exception ex) {
+                ex.printStackTrace();                        
+            }  
+        } 
+        displayInvoices(); 
+   }        
     private void saveData(){
+        String headers = "";
+        String lines = "";
+        for(InvoiceHeader header : invoicesList) {
+            headers += header.getDataAsCSV();
+            headers += "\n";
+            for (InvoiceLine line : header.getLines()) {
+                lines += line.getDataAsCSV();
+                lines += "\n";
+                
+            }
+        }
+        JOptionPane.showMessageDialog(this, "Please, select file to save header data!", "Attension", JOptionPane.WARNING_MESSAGE);
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {    
+           File headerFile = fileChooser.getSelectedFile();           
+           try {
+                FileWriter hFW = new FileWriter(headerFile);
+                hFW.write(headers);
+                hFW.flush();
+                hFW.close();
+                               
+                JOptionPane.showMessageDialog(this, "Please, select file to save lines data!", "Attension", JOptionPane.WARNING_MESSAGE);
+                result = fileChooser.showSaveDialog(this); 
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File linesFile = fileChooser.getSelectedFile();
+                    FileWriter lFW = new FileWriter(linesFile);
+                    lFW.write(lines);
+                    lFW.flush();
+                    lFW.close();
+                }
+            } catch (Exception ex) {                               
+                
+            }
+        }         
+    }
+    
+    private InvoiceHeader findInvoiceByNum(int invNum) {
+        InvoiceHeader header = null;    
+        for (InvoiceHeader inv : invoicesList){
+            if (invNum == inv.getInvNum()) {
+                header = inv;
+                break; 
+            }
+            
+        }
+        return header;
+              
+    }   
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        System.out.println("Invoice Selected!");
+        invoicesTableRowSelected();
+    }
+
+    private void invoicesTableRowSelected() {
+        int selectedRowIndex = invoicesTable.getSelectedRow();
+        if (selectedRowIndex >= 0){
+            InvoiceHeader row = invoiceHeaderTableModel.getInvoicesList().get(selectedRowIndex);     
+            custNameTF.setText(row.getCustomerName());
+            invDateTF.setText(df.format(row.getInvDate()));
+            invNumLbl.setText(""+ row.getInvNum());
+            invTotalLbl.setText(""+ row.getInvTotal());
+            ArrayList<InvoiceLine> lines = row.getLines();
+            invoiceLinesTableModel = new InvoiceLinesTableModel(lines);
+            invLinesTable.setModel(invoiceLinesTableModel);
+            invoiceLinesTableModel.fireTableDataChanged();
+              
+        }
+    }
+
+    private void displayNewInvoiceDialog() {
+        headerDialog = new InvoiceHeaderDialog(this);
+        headerDialog.setVisible(true);
+    }
+    
+    private void displayNewLineDialog() {
+        lineDialog = new InvoiceLineDialog(this);
+        lineDialog.setVisible(true);
+    }
+    
+    private void createInvCancel() {
+        headerDialog.setVisible(false);
+        headerDialog.dispose();
+        headerDialog = null;
         
-}
+    }
 
+    private void createInvOk() {
+        String custName = headerDialog.getCustNameField().getText(); 
+        String invDateStr = headerDialog.getInvDateField().getText();
+        headerDialog.setVisible(false);
+        headerDialog.dispose();
+        headerDialog = null;
+        try {
+            Date invDate = df.parse(invDateStr);                        
+            int invNum = getNextInvoiceNum();
+            InvoiceHeader invoiceHeader = new InvoiceHeader(invNum, custName, invDate);
+            invoicesList.add(invoiceHeader);
+            invoiceHeaderTableModel.fireTableDataChanged();
+        } catch (ParseException ex) {
+            ex.printStackTrace();            
+        }
+        displayInvoices(); 
+    }
+    
+    private int getNextInvoiceNum(){
+        int max = 0;
+        for (InvoiceHeader header : invoicesList){
+            if (header.getInvNum() > max){   
+                max = header.getInvNum();      
+            }            
+        }
+        return max + 1; 
+    }
+    
+    private void createLineCancel() {
+        lineDialog.setVisible(false);
+        lineDialog.dispose();
+        lineDialog = null;
+    }
 
+    private void createLineOk() {
+        String itemName = lineDialog.getItemNameField().getText();
+        String itemCountStr = lineDialog.getItemCountField().getText();
+        String itemPriceStr = lineDialog.getItemPriceField().getText();
+        lineDialog.setVisible(false);
+        lineDialog.dispose();
+        lineDialog = null;        
+        int itemCount = Integer.parseInt(itemCountStr);
+        double itemPrice = Double.parseDouble(itemPriceStr);       
+        int headerIndex = invoicesTable.getSelectedRow();
+        InvoiceHeader invoice = invoiceHeaderTableModel.getInvoicesList().get(headerIndex);
+        
+        InvoiceLine invoiceLine = new InvoiceLine(itemName, itemPrice, itemCount, invoice);
+        invoice.addInvLine(invoiceLine);
+        invoiceLinesTableModel.fireTableDataChanged();
+        invoiceHeaderTableModel.fireTableDataChanged();
+        invTotalLbl.setText("" + invoice.getInvTotal());
+        displayInvoices(); 
+
+    }
+
+    private void deleteLine() {
+        int lineIndex = invLinesTable.getSelectedRow();
+        InvoiceLine line = invoiceLinesTableModel.getInvoiceLines().get(lineIndex);
+        invoiceLinesTableModel.getInvoiceLines().remove(lineIndex);
+        invoiceLinesTableModel.fireTableDataChanged();
+        invoiceHeaderTableModel.fireTableDataChanged();
+        invTotalLbl.setText("" + line.getHeader().getInvTotal());
+        displayInvoices(); 
+    }
+
+    private void deleteInvoice() {
+        int invIndex = invoicesTable.getSelectedRow();
+        InvoiceHeader header = invoiceHeaderTableModel.getInvoicesList().get(invIndex);
+        invoiceHeaderTableModel.getInvoicesList().remove(invIndex);
+        invoiceHeaderTableModel.fireTableDataChanged();
+        invoiceLinesTableModel = new InvoiceLinesTableModel(new ArrayList<InvoiceLine>());
+        invLinesTable.setModel(invoiceLinesTableModel);
+        invoiceLinesTableModel.fireTableDataChanged();
+        custNameTF.setText("");
+        invDateTF.setText("");
+        invNumLbl.setText("");
+        invTotalLbl.setText("");
+        displayInvoices(); 
+
+    }
+    
+    private void displayInvoices() {
+        System.out.println("***************************");
+        for (InvoiceHeader header : invoicesList) {   
+            System.out.println(header);
+        }
+        
+        System.out.println("***************************");                      
+        
+    }    
 }
